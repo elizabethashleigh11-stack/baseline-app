@@ -95,27 +95,6 @@ create index if not exists idx_messages_sender
   on public.messages(sender_id);
 
 
--- 2.4) EXPENSES
-create table if not exists public.expenses (
-  id            uuid        primary key default gen_random_uuid(),
-  created_at    timestamptz not null default now(),
-
-  connection_id uuid        not null references public.connections(id) on delete cascade,
-  created_by    uuid        not null references public.users(id) on delete cascade,
-
-  description   text        not null,
-  amount_cents  integer     not null,
-  currency      text        not null default 'USD',
-  incurred_on   date        not null default current_date,
-  notes         text
-);
-
-create index if not exists idx_expenses_connection_incurred_on
-  on public.expenses(connection_id, incurred_on desc);
-create index if not exists idx_expenses_created_by
-  on public.expenses(created_by);
-
-
 -- ==========================================
 -- 3) CHECK CONSTRAINTS
 -- (added via ALTER TABLE so columns are guaranteed to exist)
@@ -158,13 +137,6 @@ alter table public.connections
     or (status <> 'active')
   );
 
--- expenses: non-negative amounts
-alter table public.expenses
-  drop constraint if exists expenses_amount_nonnegative;
-alter table public.expenses
-  add constraint expenses_amount_nonnegative check (amount_cents >= 0);
-
-
 -- ==========================================
 -- 4) RLS HELPER FUNCTIONS
 -- (defined before policies that reference them)
@@ -186,7 +158,7 @@ as $$
 $$;
 
 -- Returns true only for ACTIVE connections.
--- Used by messages and expenses policies to prevent access to pending connections.
+-- Used by message policies to prevent access to pending connections.
 create or replace function public.is_active_connection_member(p_connection_id uuid)
 returns boolean
 language sql
@@ -208,7 +180,6 @@ $$;
 alter table public.users       enable row level security;
 alter table public.connections enable row level security;
 alter table public.messages    enable row level security;
-alter table public.expenses    enable row level security;
 
 
 -- ==========================================
@@ -304,33 +275,3 @@ on public.messages for delete
 to authenticated
 using (false);
 
-
--- ---------- EXPENSES (active connections only) ----------
-
-drop policy if exists "expenses_select_active_connection_member" on public.expenses;
-create policy "expenses_select_active_connection_member"
-on public.expenses for select
-to authenticated
-using (public.is_active_connection_member(connection_id));
-
-drop policy if exists "expenses_insert_creator_active_member" on public.expenses;
-create policy "expenses_insert_creator_active_member"
-on public.expenses for insert
-to authenticated
-with check (
-  public.is_active_connection_member(connection_id)
-  and created_by = auth.uid()
-);
-
-drop policy if exists "expenses_update_creator_only" on public.expenses;
-create policy "expenses_update_creator_only"
-on public.expenses for update
-to authenticated
-using  (created_by = auth.uid() and public.is_active_connection_member(connection_id))
-with check (created_by = auth.uid() and public.is_active_connection_member(connection_id));
-
-drop policy if exists "expenses_delete_none" on public.expenses;
-create policy "expenses_delete_none"
-on public.expenses for delete
-to authenticated
-using (false);
