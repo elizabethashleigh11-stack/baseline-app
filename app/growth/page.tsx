@@ -12,6 +12,16 @@ export default async function GrowthPage() {
     redirect("/login");
   }
 
+  const { data: portalData } = await supabase
+    .from("users")
+    .select("portal_type")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (portalData?.portal_type !== "parent") {
+    redirect("/app");
+  }
+
   return (
     <main className="bg-gray-50 min-h-screen px-4 py-6 sm:px-6 lg:px-8">
       <section className="bg-crisp-white mx-auto w-full max-w-3xl rounded-2xl border border-slate-gray/25 p-5 shadow-sm sm:p-6">

@@ -18,6 +18,26 @@ export async function GET() {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { data: portalData, error: portalError } = await supabase
+    .from("users")
+    .select("portal_type")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (portalError) {
+    return Response.json(
+      { error: "Unable to verify portal access", details: portalError.message },
+      { status: 400 }
+    );
+  }
+
+  if (portalData?.portal_type !== "parent") {
+    return Response.json(
+      { error: "Reflection data is only available in the parent portal." },
+      { status: 403 }
+    );
+  }
+
   const { data, error } = await supabase
     .from("user_reflections")
     .select("category, created_at")
