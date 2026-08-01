@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Baseline",
-  description: "Co-parenting communication and expense tracking",
+  description: "Mobile-first co-parenting communication app scaffold",
 };
 
 export default function RootLayout({

@@ -1,110 +1,64 @@
-# Baseline
+# baseline-app
 
-Co-parenting communication and expense tracking — built on **Next.js** (App Router, TypeScript) and **Supabase**.
-
----
+Mobile-first baseline app scaffold using **Next.js App Router + Supabase** in a single repository for frontend and backend route handlers.
 
 ## Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | Next.js 16 (App Router, TypeScript) |
-| Auth | Supabase Auth — Email Magic Link |
-| Database | Supabase (PostgreSQL + Row-Level Security) |
-| Hosting | Any platform that supports Node.js (Vercel, Railway, etc.) |
+- **Framework:** Next.js 16 (React 19, App Router, TypeScript)
+- **Styling:** Tailwind CSS v4
+- **Theme palette:** Slate Gray (`#708090`), Navy Blue (`#1B365D`), Crisp White (`#F8FAFC`)
+- **Backend in same repo:** App Router Route Handlers (`app/api/.../route.ts`)
+- **Database/Auth:** Supabase (Postgres + Supabase Auth + RLS)
+- **Hosting target:** Vercel
 
----
+## Quick setup
 
-## Getting started
+1. Install dependencies:
 
-### 1. Install dependencies
+   ```bash
+   npm install
+   ```
 
-```bash
-npm install
-```
+2. Create local env file:
 
-### 2. Set environment variables
+   ```bash
+   cp .env.example .env.local
+   ```
 
-Copy the example file and fill in your Supabase project credentials:
+3. Set values in `.env.local` from Supabase **Project Settings → API**:
 
-```bash
-cp .env.example .env.local
-```
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+   ```
 
-Open `.env.local` and set:
+4. Run the SQL migration in Supabase SQL Editor:
 
-```
-NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
-```
+   ```text
+   supabase/migrations/0001_init.sql
+   ```
 
-Both values are found in your Supabase dashboard under **Project Settings → API**.
+   This creates:
+   - `users`
+   - `connections`
+   - `messages`
+   - RLS policies and helper functions
 
-### 3. Run the database migration
+5. Start development:
 
-Open the **Supabase SQL Editor** for your project and paste the contents of:
+   ```bash
+   npm run dev
+   ```
 
-```
-supabase/migrations/0001_init.sql
-```
+## Included routes
 
-This creates the `users`, `connections`, `messages`, and `expenses` tables, helper functions, and all Row-Level Security policies.
+- `/` Home
+- `/login` Magic-link auth screen
+- `/app` Protected app page
+- `/api/health` Example backend API route (same Next.js project)
 
-### 4. Run the development server
+## Deploy to Vercel
 
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000).
-
----
-
-## Pages
-
-| Route | Description |
-|---|---|
-| `/` | Home — links to sign-in and dashboard |
-| `/login` | Email magic-link sign-in form |
-| `/app` | Protected dashboard (server-side auth check; redirects to `/login` if not signed in) |
-
----
-
-## How the Pending Invite model works
-
-Baseline uses an **invite-code flow** to link two co-parents before any shared data can be exchanged:
-
-1. **Parent A** creates a `connections` row with `status = 'pending'` and a unique `invite_code`.  The `invited_by` field is set to Parent A's user ID.
-2. **Parent A** shares the `invite_code` out-of-band (e.g., SMS/email) with Parent B.
-3. **Parent B** looks up the connection by `invite_code` and, if the code is valid and not expired, updates the row:
-   - `status` → `'active'`
-   - `accepted_at` → `now()`
-4. Once the connection is `active`, both parents can send messages and log expenses that are scoped to that connection.
-
-### Data isolation guarantees
-
-- The `connections_canonical_order` constraint (`parent_a < parent_b`) prevents duplicate connection rows for the same pair.
-- All `messages` and `expenses` rows reference a `connection_id`, and the RLS helper `is_active_connection_member()` ensures only members of an **active** connection can read or write that data.
-- No data leaks across co-parent pairs — every query is scoped to a single connection.
-
----
-
-## Project structure
-
-```
-app/
-  layout.tsx          Root layout
-  page.tsx            Home page
-  login/
-    page.tsx          Magic-link sign-in (client component)
-  app/
-    page.tsx          Protected dashboard (server component)
-lib/
-  supabase/
-    client.ts         Browser Supabase client
-    server.ts         Server-side Supabase client (cookie-based session)
-supabase/
-  migrations/
-    0001_init.sql     Initial schema, RLS policies
-.env.example          Required environment variables
-```
+1. Import this repository into Vercel.
+2. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel project env vars.
+3. Deploy.
