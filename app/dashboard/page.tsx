@@ -1,5 +1,8 @@
+import Link from "next/link";
+
 const quickActions = [
-  { label: "New Message", emoji: "💬" },
+  { label: "New Message", emoji: "💬", href: "/messages" },
+  { label: "Communication Trends", emoji: "📈", href: "/growth" },
   { label: "Log Expense", emoji: "🧾" },
   { label: "Add Event", emoji: "📅" },
 ];
@@ -57,14 +60,25 @@ export default function DashboardPage() {
           <h2 className="text-navy-blue text-lg font-semibold">Quick Actions</h2>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {quickActions.map((action) => (
-              <button
-                key={action.label}
-                type="button"
-                className="bg-navy-blue text-crisp-white flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium"
-              >
-                <span aria-hidden>{action.emoji}</span>
-                {action.label}
-              </button>
+              action.href ? (
+                <Link
+                  key={action.label}
+                  href={action.href}
+                  className="bg-navy-blue text-crisp-white flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium"
+                >
+                  <span aria-hidden>{action.emoji}</span>
+                  {action.label}
+                </Link>
+              ) : (
+                <button
+                  key={action.label}
+                  type="button"
+                  className="bg-navy-blue text-crisp-white flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium"
+                >
+                  <span aria-hidden>{action.emoji}</span>
+                  {action.label}
+                </button>
+              )
             ))}
           </div>
         </section>

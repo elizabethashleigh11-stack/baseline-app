@@ -55,6 +55,8 @@ Mobile-first baseline app scaffold using **Next.js App Router + Supabase** in a 
 - `/` Home
 - `/login` Magic-link auth screen
 - `/app` Protected app page
+- `/messages` AI review/send message composer
+- `/growth` Private communication trends dashboard
 - `/api/health` Example backend API route (same Next.js project)
 
 ## Deploy to Vercel
