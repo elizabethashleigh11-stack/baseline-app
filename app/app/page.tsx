@@ -20,7 +20,7 @@ export default async function AppPage() {
 
   const { data: reflectionsData } = await supabase
     .from("reflections")
-    .select("entry_date, tags")
+    .select("entry_date, tags, text")
     .eq("user_id", user.id)
     .gte("entry_date", startDate.toISOString().slice(0, 10))
     .lte("entry_date", today.toISOString().slice(0, 10))
@@ -28,6 +28,7 @@ export default async function AppPage() {
 
   const reflections = (reflectionsData ?? []).map((reflection) => ({
     entry_date: reflection.entry_date,
+    text: typeof reflection.text === "string" ? reflection.text : "",
     tags: Array.isArray(reflection.tags)
       ? reflection.tags.filter((tag): tag is string => typeof tag === "string")
       : [],
