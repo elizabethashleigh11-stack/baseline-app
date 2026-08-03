@@ -30,7 +30,16 @@ export default function ReflectionInput() {
 
     const delayDebounceFn = setTimeout(async () => {
       try {
-        console.log("Saved to DB:", { text, tags: selectedTags });
+        const response = await fetch("/api/reflections", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, tags: selectedTags }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+
         setSaveStatus("saved");
       } catch (error) {
         console.error("Failed to save reflection", error);

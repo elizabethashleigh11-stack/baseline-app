@@ -32,16 +32,18 @@ Mobile-first baseline app scaffold using **Next.js App Router + Supabase** in a 
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
    ```
 
-4. Run the SQL migration in Supabase SQL Editor:
+4. Run the SQL migrations in Supabase SQL Editor:
 
    ```text
    supabase/migrations/0001_init.sql
+   supabase/migrations/0002_reflections.sql
    ```
 
    This creates:
    - `users`
    - `connections`
    - `messages`
+   - `reflections`
    - RLS policies and helper functions
 
 5. Start development:
@@ -56,6 +58,7 @@ Mobile-first baseline app scaffold using **Next.js App Router + Supabase** in a 
 - `/login` Magic-link auth screen
 - `/app` Protected app page
 - `/api/health` Example backend API route (same Next.js project)
+- `/api/reflections` Authenticated reflection autosave route
 
 ## Deploy to Vercel
 
