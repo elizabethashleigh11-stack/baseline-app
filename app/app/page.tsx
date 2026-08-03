@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
+import ReflectionInput from "./ReflectionInput";
 
 export default async function AppPage() {
   const supabase = await createServerClient();
@@ -23,6 +24,7 @@ export default async function AppPage() {
           This protected workspace is ready for connections and messaging
           features.
         </p>
+        <ReflectionInput />
       </section>
     </main>
   );
