@@ -117,7 +117,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = (await req.json()) as CountersignPayload | WithdrawPayload & { action?: unknown };
+    const body = (await req.json()) as (CountersignPayload | WithdrawPayload) & { action?: unknown };
     const { opt_out_id } = body as { opt_out_id: unknown };
     const action = (body as { action?: unknown }).action;
 

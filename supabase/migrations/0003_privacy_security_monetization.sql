@@ -112,7 +112,8 @@ create table if not exists public.opt_out_requests (
   -- 'pending' | 'completed' | 'withdrawn'
   status            text        not null default 'pending',
 
-  unique (connection_id, status)  -- only one active opt-out per connection
+  -- No table-level unique here; a partial index (below) enforces
+  -- at most one pending opt-out per connection at a time.
 );
 
 drop trigger if exists trg_opt_out_requests_updated_at on public.opt_out_requests;
@@ -122,6 +123,13 @@ for each row execute function public.set_updated_at();
 
 create index if not exists idx_opt_out_requests_connection
   on public.opt_out_requests(connection_id);
+
+-- Enforce at most one *pending* opt-out per connection at a time;
+-- completed/withdrawn requests are allowed to accumulate.
+drop index if exists uidx_opt_out_requests_one_pending;
+create unique index uidx_opt_out_requests_one_pending
+  on public.opt_out_requests(connection_id)
+  where (status = 'pending');
 
 alter table public.opt_out_requests
   drop constraint if exists opt_out_requests_status_valid;

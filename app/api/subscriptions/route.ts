@@ -129,7 +129,7 @@ export async function POST(req: Request) {
       metadata: { plan },
     });
 
-    return NextResponse.json({ subscription: data }, { status: 200 });
+    return NextResponse.json({ subscription: data }, { status: 201 });
   } catch (err) {
     console.error("subscriptions POST error:", err);
     return NextResponse.json(

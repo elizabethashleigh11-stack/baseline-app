@@ -2,17 +2,23 @@ import { NextResponse } from "next/server";
 import { createServerClient } from "@/lib/supabase/server";
 import { randomBytes, createHmac } from "crypto";
 
-const SHARE_TOKEN_SECRET = process.env.SHARE_TOKEN_SECRET ?? "change-me-in-env";
+const SHARE_TOKEN_SECRET = process.env.SHARE_TOKEN_SECRET;
 const SHARE_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-/** Sign a share token so it cannot be forged. */
+/** Sign a share token so it cannot be forged. Throws if SHARE_TOKEN_SECRET is not set. */
 function signToken(payload: string): string {
+  if (!SHARE_TOKEN_SECRET) {
+    throw new Error("SHARE_TOKEN_SECRET environment variable is not set.");
+  }
   return createHmac("sha256", SHARE_TOKEN_SECRET)
     .update(payload)
     .digest("hex");
 }
 
-/** Build a short-lived, single-use share token that encodes the user + expiry. */
+/** Build a short-lived share token that encodes the user + expiry.
+ *  Note: the token is time-limited (7 days) but not single-use.
+ *  For single-use enforcement a nonce-tracking store would be required.
+ */
 function createShareToken(userId: string): string {
   const nonce = randomBytes(8).toString("hex");
   const expiresAt = Date.now() + SHARE_TOKEN_TTL_MS;
