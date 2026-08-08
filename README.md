@@ -65,3 +65,12 @@ Mobile-first baseline app scaffold using **Next.js App Router + Supabase** in a 
 1. Import this repository into Vercel.
 2. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel project env vars.
 3. Deploy.
+
+## Scheduled Supabase wake-up
+
+This repo includes `.github/workflows/wake-up-supabase.yml`, which runs every 6 days (and can be run manually from **Actions**).
+
+Set these repository settings in GitHub:
+
+- **Variables** → `WAKE_UP_URL` (your deployed endpoint, for example `https://your-app.vercel.app/api/health`)
+- **Secrets** (optional) → `WAKE_UP_KEY` (only if your endpoint expects an `x-wake-key` header)
