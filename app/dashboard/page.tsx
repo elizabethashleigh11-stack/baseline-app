@@ -1,7 +1,10 @@
+import Link from "next/link";
+
 const quickActions = [
-  { label: "New Message", emoji: "💬" },
-  { label: "Log Expense", emoji: "🧾" },
-  { label: "Add Event", emoji: "📅" },
+  { label: "New Message", emoji: "💬", href: null },
+  { label: "Log Expense", emoji: "🧾", href: null },
+  { label: "Add Event", emoji: "📅", href: null },
+  { label: "Logistics Hub", emoji: "🗓️", href: "/logistics" },
 ];
 
 const upcomingSchedule = [
@@ -55,17 +58,28 @@ export default function DashboardPage() {
 
         <section className="bg-crisp-white rounded-2xl border border-slate-gray/25 p-5 shadow-sm sm:p-6">
           <h2 className="text-navy-blue text-lg font-semibold">Quick Actions</h2>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {quickActions.map((action) => (
-              <button
-                key={action.label}
-                type="button"
-                className="bg-navy-blue text-crisp-white flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium"
-              >
-                <span aria-hidden>{action.emoji}</span>
-                {action.label}
-              </button>
-            ))}
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-4">
+            {quickActions.map((action) =>
+              action.href ? (
+                <Link
+                  key={action.label}
+                  href={action.href}
+                  className="bg-navy-blue text-crisp-white flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium"
+                >
+                  <span aria-hidden>{action.emoji}</span>
+                  {action.label}
+                </Link>
+              ) : (
+                <button
+                  key={action.label}
+                  type="button"
+                  className="bg-navy-blue text-crisp-white flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium"
+                >
+                  <span aria-hidden>{action.emoji}</span>
+                  {action.label}
+                </button>
+              ),
+            )}
           </div>
         </section>
 
