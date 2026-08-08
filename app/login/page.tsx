@@ -1,47 +1,92 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 type PortalType = "parent" | "professional";
 
+function isPortalType(value: unknown): value is PortalType {
+  return value === "parent" || value === "professional";
+}
+
 export default function LoginPage() {
-  const [selectedPortal, setSelectedPortal] = useState<PortalType | null>(null);
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState("");
+  const [statusType, setStatusType] = useState<
+    "info" | "error" | "success" | null
+  >(null);
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setError(null);
-    setSuccess(false);
+    setStatusMessage("Signing in...");
+    setStatusType("info");
     setLoading(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      const supabase = getSupabaseClient();
+      const { data: authData, error: authError } =
+        await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
 
-    setLoading(false);
+      if (authError) {
+        setStatusMessage(`Error: ${authError.message}`);
+        setStatusType("error");
+        return;
+      }
 
-    if (!selectedPortal) {
-      setError("Please select a portal first.");
-      return;
+      if (!authData.user) {
+        setStatusMessage("Error: No user returned from sign-in.");
+        setStatusType("error");
+        return;
+      }
+
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", authData.user.id)
+        .maybeSingle();
+
+      let role: PortalType | null = null;
+
+      if (!profileError && isPortalType(profileData?.role)) {
+        role = profileData.role;
+      }
+
+      if (!role) {
+        const roleFromMetadata = authData.user.user_metadata?.portal_preference;
+        if (isPortalType(roleFromMetadata)) {
+          role = roleFromMetadata;
+        }
+      }
+
+      if (!role) {
+        setStatusMessage("Error: Unrecognized role.");
+        setStatusType("error");
+        return;
+      }
+
+      setStatusMessage("Success! Redirecting...");
+      setStatusType("success");
+
+      if (role === "parent") {
+        router.push("/parent-portal");
+      } else {
+        router.push("/professional-portal");
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      setStatusMessage(`Error: ${message}`);
+      setStatusType("error");
+    } finally {
+      setLoading(false);
     }
-
-    if (!email || !password) {
-      setError("Please enter both email and password.");
-      return;
-    }
-
-    setSuccess(true);
-  }
-
-  function handleBackToPortalSelection() {
-    setSelectedPortal(null);
-    setEmail("");
-    setPassword("");
-    setError(null);
-    setSuccess(false);
   }
 
   return (
@@ -51,113 +96,79 @@ export default function LoginPage() {
           Sign in to Baseline
         </h1>
         <p className="text-slate-gray mt-2 text-center text-sm">
-          Choose your portal to continue.
+          Sign in to continue.
         </p>
 
-        {!selectedPortal ? (
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <button
-              type="button"
-              onClick={() => setSelectedPortal("parent")}
-              className="border-slate-gray/35 text-navy-blue hover:border-navy-blue hover:bg-navy-blue/5 rounded-xl border p-4 text-left"
-            >
-              <p className="text-sm font-semibold">Parent Portal</p>
-              <p className="text-slate-gray mt-1 text-xs">Family coordination</p>
-            </button>
-            <button
-              type="button"
-              onClick={() => setSelectedPortal("professional")}
-              className="border-slate-gray/35 text-navy-blue hover:border-navy-blue hover:bg-navy-blue/5 rounded-xl border p-4 text-left"
-            >
-              <p className="text-sm font-semibold">Professional Portal</p>
-              <p className="text-slate-gray mt-1 text-xs">Provider access</p>
-            </button>
-          </div>
-        ) : (
-          <div className="mt-6">
-            <button
-              type="button"
-              onClick={handleBackToPortalSelection}
-              className="text-slate-gray mb-4 text-sm font-medium"
-            >
-              ← Back
-            </button>
-
-            <p className="text-slate-gray mb-4 text-sm">
-              Signing in to{" "}
-              <span className="text-navy-blue font-semibold">
-                {selectedPortal === "parent"
-                  ? "Parent Portal"
-                  : "Professional Portal"}
-              </span>
-            </p>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label
-                  htmlFor="email"
-                  className="text-slate-gray mb-1 block text-sm font-medium"
-                >
-                  Email address
-                </label>
-                <input
-                  id="email"
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="focus:border-navy-blue focus:ring-navy-blue w-full rounded-lg border border-slate-gray/40 px-3 py-2 text-sm outline-none focus:ring-2"
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="password"
-                  className="text-slate-gray mb-1 block text-sm font-medium"
-                >
-                  Password
-                </label>
-                <input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="focus:border-navy-blue focus:ring-navy-blue w-full rounded-lg border border-slate-gray/40 px-3 py-2 text-sm outline-none focus:ring-2"
-                />
-              </div>
-
-              {error && <p className="text-sm text-red-700">{error}</p>}
-              {success && (
-                <p className="text-sm text-green-700">
-                  Sign-in form submitted for {email}.
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-navy-blue text-crisp-white w-full rounded-lg px-4 py-2.5 text-sm font-medium disabled:opacity-70"
+        <div className="mt-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label
+                htmlFor="email"
+                className="text-slate-gray mb-1 block text-sm font-medium"
               >
-                {loading ? "Signing in..." : "Sign In"}
-              </button>
-            </form>
-
-            <div className="mt-4 flex items-center justify-between text-sm">
-              <Link href="#" className="text-slate-gray hover:text-navy-blue">
-                Forgot Password?
-              </Link>
-              <Link
-                href="/signup"
-                className="text-slate-gray hover:text-navy-blue"
-              >
-                Create an Account
-              </Link>
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="focus:border-navy-blue focus:ring-navy-blue w-full rounded-lg border border-slate-gray/40 px-3 py-2 text-sm outline-none focus:ring-2"
+              />
             </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="text-slate-gray mb-1 block text-sm font-medium"
+              >
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter your password"
+                className="focus:border-navy-blue focus:ring-navy-blue w-full rounded-lg border border-slate-gray/40 px-3 py-2 text-sm outline-none focus:ring-2"
+              />
+            </div>
+
+            {statusMessage && (
+              <p
+                className={`text-sm ${
+                  statusType === "error"
+                    ? "text-red-700"
+                    : statusType === "success"
+                      ? "text-green-700"
+                      : "text-slate-gray"
+                }`}
+              >
+                {statusMessage}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-navy-blue text-crisp-white w-full rounded-lg px-4 py-2.5 text-sm font-medium disabled:opacity-70"
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </button>
+          </form>
+
+          <div className="mt-4 flex items-center justify-between text-sm">
+            <Link href="#" className="text-slate-gray hover:text-navy-blue">
+              Forgot Password?
+            </Link>
+            <Link href="/signup" className="text-slate-gray hover:text-navy-blue">
+              Create an Account
+            </Link>
           </div>
-        )}
+        </div>
       </section>
     </main>
   );
