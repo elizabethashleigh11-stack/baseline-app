@@ -60,6 +60,7 @@ export default async function ProfessionalPortalPage() {
   const startDate = new Date(today);
   startDate.setDate(today.getDate() - 29);
 
+  // This reflection view is intentionally scoped to the signed-in professional.
   const { data: reflectionsData } = await supabase
     .from("reflections")
     .select("entry_date, tags, text")

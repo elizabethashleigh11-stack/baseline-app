@@ -69,12 +69,16 @@ export default async function ParentPortalPage() {
 
         <section className="bg-crisp-white rounded-2xl border border-slate-gray/25 p-5 shadow-sm sm:p-6">
           <h2 className="text-navy-blue text-lg font-semibold">Quick Actions</h2>
+          <p className="text-slate-gray mt-1 text-sm">
+            These shortcuts are planned next and are shown here as a preview.
+          </p>
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
             {quickActions.map((action) => (
               <button
                 key={action.label}
                 type="button"
-                className="bg-navy-blue text-crisp-white flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium"
+                disabled
+                className="bg-navy-blue text-crisp-white flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium opacity-60"
               >
                 <span aria-hidden="true">{action.emoji}</span>
                 {action.label}

@@ -8,5 +8,9 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  redirect(role === "parent" ? "/parent-portal" : "/professional-portal");
+  if (role === "parent") {
+    redirect("/parent-portal");
+  }
+
+  redirect("/professional-portal");
 }
