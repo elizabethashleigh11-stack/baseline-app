@@ -6,6 +6,24 @@ const protectionEnabled =
 const accessUsername = process.env.SITE_ACCESS_USERNAME;
 const accessPassword = process.env.SITE_ACCESS_PASSWORD;
 
+function timingSafeEqual(a: string, b: string) {
+  const aBytes = new TextEncoder().encode(a);
+  const bBytes = new TextEncoder().encode(b);
+  const maxLength = Math.max(aBytes.length, bBytes.length);
+
+  const paddedA = new Uint8Array(maxLength);
+  const paddedB = new Uint8Array(maxLength);
+  paddedA.set(aBytes);
+  paddedB.set(bBytes);
+
+  let mismatch = aBytes.length ^ bBytes.length;
+  for (let index = 0; index < maxLength; index += 1) {
+    mismatch |= paddedA[index] ^ paddedB[index];
+  }
+
+  return mismatch === 0;
+}
+
 function unauthorized() {
   return new Response("Authentication required.", {
     status: 401,
@@ -44,7 +62,10 @@ export function proxy(request: NextRequest) {
     const username = decodedCredentials.slice(0, separator);
     const password = decodedCredentials.slice(separator + 1);
 
-    if (username !== accessUsername || password !== accessPassword) {
+    const usernameMatches = timingSafeEqual(username, accessUsername);
+    const passwordMatches = timingSafeEqual(password, accessPassword);
+
+    if (!(usernameMatches && passwordMatches)) {
       return unauthorized();
     }
   } catch {
