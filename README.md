@@ -68,7 +68,7 @@ Mobile-first baseline app scaffold using **Next.js App Router + Supabase** in a 
 
 ## Scheduled Supabase wake-up
 
-This repo includes `.github/workflows/wake-up-supabase.yml`, which checks daily and sends the wake-up ping every 6 days (and can be run manually from **Actions**).
+This repo includes `.github/workflows/wake-up-supabase.yml`, which checks at 10:00/11:00 UTC and sends the wake-up ping at 6:00 AM America/New_York every 6 days (and can be run manually from **Actions**).
 
 Set these repository settings in GitHub:
 
