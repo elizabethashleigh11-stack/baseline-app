@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 type ToneMetrics = {
   empathy: number;
@@ -20,53 +20,51 @@ type ToneDialProps = {
   tone?: "good" | "warning";
 };
 
-export function ActivePolishWorkspace() {
+const TONE_METRICS: ToneMetrics = {
+  empathy: 45,
+  directness: 85,
+  formality: 60,
+  frustration: 75, // Elevated frustration
+};
+
+export default function ActivePolishWorkspace() {
   const [draftText, setDraftText] = useState("");
 
   // Simulated real-time metrics (These would be fed by your AI API)
-  const toneMetrics: ToneMetrics = {
-    empathy: 45,
-    directness: 85,
-    formality: 60,
-    frustration: 75, // Elevated frustration
-  };
+  const toneMetrics = TONE_METRICS;
 
-  const suggestions = useMemo(() => {
-    const nextSuggestions: SuggestionCardProps[] = [];
+  const suggestions: SuggestionCardProps[] = [];
 
-    if (toneMetrics.frustration >= 70) {
-      nextSuggestions.push({
-        title: "Lower the heat",
-        detail:
-          "Swap charged words with neutral language so the message feels calmer.",
-      });
-    }
+  if (toneMetrics.frustration >= 70) {
+    suggestions.push({
+      title: "Lower the heat",
+      detail:
+        "Swap charged words with neutral language so the message feels calmer.",
+    });
+  }
 
-    if (toneMetrics.empathy < 60) {
-      nextSuggestions.push({
-        title: "Add acknowledgment",
-        detail:
-          "Open with one line that validates the other person's perspective before your request.",
-      });
-    }
+  if (toneMetrics.empathy < 60) {
+    suggestions.push({
+      title: "Add acknowledgment",
+      detail:
+        "Open with one line that validates the other person's perspective before your request.",
+    });
+  }
 
-    if (toneMetrics.directness > 80) {
-      nextSuggestions.push({
-        title: "Soften directness",
-        detail:
-          "Keep your core ask, but add context and one collaborative phrase.",
-      });
-    }
+  if (toneMetrics.directness > 80) {
+    suggestions.push({
+      title: "Soften directness",
+      detail:
+        "Keep your core ask, but add context and one collaborative phrase.",
+    });
+  }
 
-    if (!nextSuggestions.length) {
-      nextSuggestions.push({
-        title: "Tone looks balanced",
-        detail: "No critical edits needed. Focus on clarity and brevity.",
-      });
-    }
-
-    return nextSuggestions;
-  }, [toneMetrics.directness, toneMetrics.empathy, toneMetrics.frustration]);
+  if (!suggestions.length) {
+    suggestions.push({
+      title: "Tone looks balanced",
+      detail: "No critical edits needed. Focus on clarity and brevity.",
+    });
+  }
 
   return (
     <section className="mt-8 rounded-2xl border border-slate-gray/25 p-4 sm:p-5">
@@ -97,9 +95,9 @@ export function ActivePolishWorkspace() {
       </div>
 
       <div className="mt-5 space-y-3">
-        {suggestions.map((suggestion) => (
+        {suggestions.map((suggestion, index) => (
           <SuggestionCard
-            key={suggestion.title}
+            key={`${suggestion.title}-${index}`}
             title={suggestion.title}
             detail={suggestion.detail}
           />
