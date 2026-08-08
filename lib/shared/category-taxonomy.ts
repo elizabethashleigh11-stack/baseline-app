@@ -44,8 +44,8 @@ export type LogEntryCategoryPair = {
   };
 }[MainCategory];
 
-export interface LogEntry extends LogEntryCategoryPair {
+export type LogEntry = LogEntryCategoryPair & {
   id: string;
   notes?: string | null;
   createdAt: Date;
-}
+};

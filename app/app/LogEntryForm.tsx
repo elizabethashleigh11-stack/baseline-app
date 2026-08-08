@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import {
   CONTEXT_CATEGORIES,
+  type AnySubcategory,
   type MainCategory,
 } from "@/lib/shared/category-taxonomy";
 import { logEntrySchema } from "@/lib/validation/log-entry.schema";
@@ -11,7 +12,7 @@ const MAIN_CATEGORIES = Object.keys(CONTEXT_CATEGORIES) as MainCategory[];
 
 export default function LogEntryForm() {
   const [mainCategory, setMainCategory] = useState<MainCategory>("code_dev");
-  const [subcategory, setSubcategory] = useState(
+  const [subcategory, setSubcategory] = useState<AnySubcategory>(
     CONTEXT_CATEGORIES.code_dev.subcategories[0]
   );
   const [notes, setNotes] = useState("");
@@ -26,7 +27,7 @@ export default function LogEntryForm() {
   const onMainCategoryChange = (value: MainCategory) => {
     const nextSubcategory = CONTEXT_CATEGORIES[value].subcategories[0];
     setMainCategory(value);
-    setSubcategory(nextSubcategory);
+    setSubcategory(nextSubcategory as AnySubcategory);
     setErrorMessage("");
     setStatusMessage("");
   };
@@ -47,7 +48,7 @@ export default function LogEntryForm() {
       return;
     }
 
-    setStatusMessage("Log entry is valid and ready to submit.");
+    setStatusMessage("Log entry is valid.");
   };
 
   return (
@@ -86,7 +87,9 @@ export default function LogEntryForm() {
             id="subcategory"
             className="w-full rounded-lg border border-slate-gray/35 px-3 py-2 text-sm"
             value={subcategory}
-            onChange={(event) => setSubcategory(event.target.value)}
+            onChange={(event) =>
+              setSubcategory(event.target.value as AnySubcategory)
+            }
           >
             {subcategories.map((subcat) => (
               <option key={subcat} value={subcat}>

@@ -3,18 +3,19 @@
 import { useState } from "react";
 import {
   CONTEXT_CATEGORIES,
+  type AnySubcategory,
   type MainCategory,
 } from "@/lib/shared/category-taxonomy";
 
 type ContextNavProps = {
-  onSelect?: (mainCategory: MainCategory, subcategory: string) => void;
+  onSelect?: (mainCategory: MainCategory, subcategory: AnySubcategory) => void;
 };
 
 const MAIN_CATEGORIES = Object.keys(CONTEXT_CATEGORIES) as MainCategory[];
 
 export default function ContextNav({ onSelect }: ContextNavProps) {
   const [activeMain, setActiveMain] = useState<MainCategory>("code_dev");
-  const [activeSubcategory, setActiveSubcategory] = useState(
+  const [activeSubcategory, setActiveSubcategory] = useState<AnySubcategory>(
     CONTEXT_CATEGORIES.code_dev.subcategories[0]
   );
 
@@ -39,7 +40,7 @@ export default function ContextNav({ onSelect }: ContextNavProps) {
                 const nextSubcategory =
                   CONTEXT_CATEGORIES[mainCategory].subcategories[0];
                 setActiveMain(mainCategory);
-                setActiveSubcategory(nextSubcategory);
+                setActiveSubcategory(nextSubcategory as AnySubcategory);
                 onSelect?.(mainCategory, nextSubcategory);
               }}
             >
@@ -62,7 +63,7 @@ export default function ContextNav({ onSelect }: ContextNavProps) {
                   : "border-slate-gray/25 text-slate-gray hover:border-navy-blue/40 hover:text-navy-blue"
               }`}
               onClick={() => {
-                setActiveSubcategory(subcategory);
+                setActiveSubcategory(subcategory as AnySubcategory);
                 onSelect?.(activeMain, subcategory);
               }}
             >
