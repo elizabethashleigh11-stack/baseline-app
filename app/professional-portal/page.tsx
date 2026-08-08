@@ -48,11 +48,7 @@ const followUps = [
 export default async function ProfessionalPortalPage() {
   const { supabase, user, role } = await getPortalSession();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  if (!role) {
+  if (!user || !role) {
     redirect("/login");
   }
 

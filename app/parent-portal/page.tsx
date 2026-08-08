@@ -46,11 +46,7 @@ const recentActivity = [
 export default async function ParentPortalPage() {
   const { user, role } = await getPortalSession();
 
-  if (!user) {
-    redirect("/login");
-  }
-
-  if (!role) {
+  if (!user || !role) {
     redirect("/login");
   }
 
