@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createServerClient } from "@/lib/supabase/server";
 import ReflectionInput from "./ReflectionInput";
 import MoodHeatmap from "./MoodHeatmap";
+import LogEntryForm from "./LogEntryForm";
+import ContextNav from "./ContextNav";
 
 export default async function AppPage() {
   const supabase = await createServerClient();
@@ -45,6 +47,8 @@ export default async function AppPage() {
           This protected workspace is ready for connections and messaging
           features.
         </p>
+        <ContextNav />
+        <LogEntryForm />
         <ReflectionInput />
         <MoodHeatmap reflections={reflections} />
       </section>
