@@ -43,8 +43,6 @@ export function ActivePolishWorkspace() {
     });
   }
 
-  export default ActivePolishWorkspace;
-
   if (toneMetrics.empathy < 60) {
     suggestions.push({
       title: "Add acknowledgment",
