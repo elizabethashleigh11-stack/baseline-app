@@ -27,7 +27,7 @@ const TONE_METRICS: ToneMetrics = {
   frustration: 75, // Elevated frustration
 };
 
-export default function ActivePolishWorkspace() {
+export function ActivePolishWorkspace() {
   const [draftText, setDraftText] = useState("");
 
   // Simulated real-time metrics (These would be fed by your AI API)
@@ -42,6 +42,8 @@ export default function ActivePolishWorkspace() {
         "Swap charged words with neutral language so the message feels calmer.",
     });
   }
+
+  export default ActivePolishWorkspace;
 
   if (toneMetrics.empathy < 60) {
     suggestions.push({
