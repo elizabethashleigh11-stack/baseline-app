@@ -95,7 +95,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // --- Court portal access guard ---
-  if (pathname.startsWith("/court-portal")) {
+  if (pathname === "/court-portal" || pathname.startsWith("/court-portal/")) {
     const guardResponse = await guardCourtPortal(request);
     if (guardResponse) return guardResponse;
     // If no site-wide protection is enabled, let the request through now.

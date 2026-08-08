@@ -179,7 +179,11 @@ export default async function VitalsDashboardPage({
           <Link
             key={link.href}
             href={link.href}
-            className="text-navy-blue border-b-2 border-navy-blue px-3 pb-2 text-sm font-medium first:pl-0"
+            className={`px-3 pb-2 text-sm font-medium first:pl-0 ${
+              link.label === "Vitals"
+                ? "text-navy-blue border-b-2 border-navy-blue"
+                : "text-slate-gray hover:text-navy-blue"
+            }`}
           >
             {link.label}
           </Link>

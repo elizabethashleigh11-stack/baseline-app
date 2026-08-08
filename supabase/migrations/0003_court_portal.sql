@@ -151,8 +151,8 @@ create table if not exists public.mandate_enrollment (
 
   connection_id uuid        not null references public.connections(id) on delete cascade,
   start_date    date        not null,
-  -- 18 months ≈ 540 days
-  end_date      date        not null generated always as (start_date + interval '540 days') stored
+  -- 18 calendar months from start_date
+  end_date      date        not null generated always as ((start_date + interval '18 months')::date) stored
 );
 
 create unique index if not exists uidx_mandate_enrollment_connection
@@ -285,7 +285,9 @@ for each row execute function public.trg_fn_sla_expense_paid();
 -- ==========================================
 -- Groups behavioral flags by calendar month within the 18-month mandate window.
 -- Month 1 = first calendar month of mandate start_date.
-create or replace view public.graduation_metrics as
+create or replace view public.graduation_metrics
+with (security_barrier = true)
+as
 select
   me.connection_id,
   me.start_date,
@@ -303,6 +305,9 @@ join public.behavioral_flags bf
   on bf.connection_id = me.connection_id
  and bf.flagged_at >= me.start_date::timestamptz
  and bf.flagged_at <  me.end_date::timestamptz
+where
+  public.is_professional_for_connection(me.connection_id)
+  or public.is_active_connection_member(me.connection_id)
 group by
   me.connection_id,
   me.start_date,

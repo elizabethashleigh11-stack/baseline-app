@@ -344,7 +344,10 @@ export async function POST(req: Request) {
 
   if (uploadError) {
     console.error("[docket] storage upload error:", uploadError);
-    // Still return the PDF bytes even if storage fails; log the issue.
+    return NextResponse.json(
+      { error: "Failed to store docket PDF. Please try again." },
+      { status: 500 }
+    );
   }
 
   // Log the report.

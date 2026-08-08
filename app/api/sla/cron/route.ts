@@ -15,13 +15,18 @@ import { createClient } from "@supabase/supabase-js";
 const CRON_SECRET = process.env.CRON_SECRET;
 
 export async function POST(req: Request) {
-  // Simple bearer-token guard.
-  if (CRON_SECRET) {
-    const authHeader = req.headers.get("Authorization") ?? "";
-    const token = authHeader.replace(/^Bearer\s+/i, "");
-    if (token !== CRON_SECRET) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  // Require CRON_SECRET to be configured; reject all requests when it is absent.
+  if (!CRON_SECRET) {
+    return NextResponse.json(
+      { error: "Cron secret not configured. Set CRON_SECRET to enable this endpoint." },
+      { status: 503 }
+    );
+  }
+
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const token = authHeader.replace(/^Bearer\s+/i, "");
+  if (token !== CRON_SECRET) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
