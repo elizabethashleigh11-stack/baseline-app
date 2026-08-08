@@ -80,7 +80,7 @@ export default async function ParentPortalPage() {
                 type="button"
                 className="bg-navy-blue text-crisp-white flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-medium"
               >
-                <span aria-hidden>{action.emoji}</span>
+                <span aria-hidden="true">{action.emoji}</span>
                 {action.label}
               </button>
             ))}

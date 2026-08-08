@@ -149,10 +149,11 @@ export default async function ProfessionalPortalPage() {
 
             <section className="bg-crisp-white rounded-2xl border border-slate-gray/25 p-5 shadow-sm sm:p-6">
               <h2 className="text-navy-blue text-lg font-semibold">
-                Provider reflection
+                Personal provider reflection
               </h2>
               <p className="text-slate-gray mt-1 text-sm">
-                Track notes, emotional trends, and follow-up context for your day.
+                Track your own notes, emotional trends, and follow-up context for
+                the day.
               </p>
               <ReflectionInput />
               <MoodHeatmap reflections={reflections} />
