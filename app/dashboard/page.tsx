@@ -1,3 +1,5 @@
+import ActivePolishWorkspace from "../app/ActivePolishWorkspace";
+
 const quickActions = [
   { label: "New Message", emoji: "💬" },
   { label: "Log Expense", emoji: "🧾" },
@@ -115,6 +117,8 @@ export default function DashboardPage() {
             </ul>
           </section>
         </div>
+
+        <ActivePolishWorkspace />
       </div>
 
       <nav className="bg-crisp-white fixed inset-x-0 bottom-0 border-t border-slate-gray/25 shadow-[0_-6px_20px_rgba(27,54,93,0.08)] sm:hidden">
