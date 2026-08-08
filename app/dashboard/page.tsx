@@ -1,4 +1,4 @@
-import ActivePolishWorkspace from "../app/ActivePolishWorkspace";
+import ActivePolishWorkspace from "@/app/app/ActivePolishWorkspace";
 
 const quickActions = [
   { label: "New Message", emoji: "💬" },
