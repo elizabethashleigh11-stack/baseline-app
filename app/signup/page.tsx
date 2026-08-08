@@ -10,13 +10,18 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<PortalRole>("parent");
-  const [status, setStatus] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [statusType, setStatusType] = useState<
+    "info" | "error" | "success" | null
+  >(null);
+  const [signedUp, setSignedUp] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    setStatus("Creating account...");
+    setStatusMessage("Creating account...");
+    setStatusType("info");
 
     try {
       const supabase = getSupabaseClient();
@@ -24,18 +29,22 @@ export default function SignUpPage() {
         email,
         password,
         options: {
-          data: { role },
+          data: { portal_preference: role },
         },
       });
 
       if (error) {
-        setStatus(`Error: ${error.message}`);
+        setStatusMessage(`Error: ${error.message}`);
+        setStatusType("error");
       } else {
-        setStatus("Success! Profile created. Check your email to confirm.");
+        setStatusMessage("Success! Profile created. Check your email to confirm.");
+        setStatusType("success");
+        setSignedUp(true);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unknown error";
-      setStatus(`Error: ${message}`);
+      setStatusMessage(`Error: ${message}`);
+      setStatusType("error");
     } finally {
       setLoading(false);
     }
@@ -63,6 +72,7 @@ export default function SignUpPage() {
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value as PortalRole)}
+              disabled={signedUp}
               className="focus:border-navy-blue focus:ring-navy-blue w-full rounded-lg border border-slate-gray/40 px-3 py-2 text-sm outline-none focus:ring-2"
             >
               <option value="parent">Parent Portal</option>
@@ -83,6 +93,7 @@ export default function SignUpPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              disabled={signedUp}
               placeholder="you@example.com"
               className="focus:border-navy-blue focus:ring-navy-blue w-full rounded-lg border border-slate-gray/40 px-3 py-2 text-sm outline-none focus:ring-2"
             />
@@ -102,24 +113,29 @@ export default function SignUpPage() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={signedUp}
               placeholder="At least 8 characters"
               className="focus:border-navy-blue focus:ring-navy-blue w-full rounded-lg border border-slate-gray/40 px-3 py-2 text-sm outline-none focus:ring-2"
             />
           </div>
 
-          {status && (
+          {statusMessage && (
             <p
               className={`text-sm ${
-                status.startsWith("Error:") ? "text-red-700" : "text-green-700"
+                statusType === "error"
+                  ? "text-red-700"
+                  : statusType === "success"
+                    ? "text-green-700"
+                    : "text-slate-gray"
               }`}
             >
-              {status}
+              {statusMessage}
             </p>
           )}
 
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || signedUp}
             className="bg-navy-blue text-crisp-white w-full rounded-lg px-4 py-2.5 text-sm font-medium disabled:opacity-70"
           >
             {loading ? "Creating..." : "Create Account"}
