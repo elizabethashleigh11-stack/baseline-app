@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 const protectionEnabled =
   process.env.SITE_PASSWORD_PROTECTION_ENABLED === "true";
@@ -33,7 +34,75 @@ function unauthorized() {
   });
 }
 
-export function proxy(request: NextRequest) {
+/**
+ * Guard for /court-portal/* routes.
+ * Allows /court-portal/login through; all other sub-paths require the user to
+ * have a valid row in professional_access.
+ */
+async function guardCourtPortal(
+  request: NextRequest
+): Promise<NextResponse | Response | null> {
+  const { pathname } = request.nextUrl;
+
+  if (pathname === "/court-portal/login") {
+    return null; // allow through
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return NextResponse.redirect(new URL("/court-portal/login", request.url));
+  }
+
+  const accessToken = request.cookies
+    .getAll()
+    .find((c) => c.name.endsWith("-auth-token"))?.value;
+
+  if (!accessToken) {
+    return NextResponse.redirect(new URL("/court-portal/login", request.url));
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    global: {
+      headers: { Authorization: "Bearer " + accessToken },
+    },
+    auth: { persistSession: false, detectSessionInUrl: false },
+  });
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.redirect(new URL("/court-portal/login", request.url));
+  }
+
+  const { count } = await supabase
+    .from("professional_access")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`);
+
+  if (!count || count === 0) {
+    return NextResponse.redirect(new URL("/court-portal/login", request.url));
+  }
+
+  return null; // allow through
+}
+
+export async function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // --- Court portal access guard ---
+  if (pathname === "/court-portal" || pathname.startsWith("/court-portal/")) {
+    const guardResponse = await guardCourtPortal(request);
+    if (guardResponse) return guardResponse;
+    // If no site-wide protection is enabled, let the request through now.
+    if (!protectionEnabled) return NextResponse.next();
+  }
+
+  // --- Site-wide Basic-Auth protection (optional) ---
   if (!protectionEnabled) {
     return NextResponse.next();
   }
@@ -80,3 +149,4 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)",
   ],
 };
+
