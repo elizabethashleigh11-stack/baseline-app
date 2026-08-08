@@ -68,9 +68,10 @@ Mobile-first baseline app scaffold using **Next.js App Router + Supabase** in a 
 
 ## Scheduled Supabase wake-up
 
-This repo includes `.github/workflows/wake-up-supabase.yml`, which runs every 6 days (and can be run manually from **Actions**).
+This repo includes `.github/workflows/wake-up-supabase.yml`, which checks daily and sends the wake-up ping every 6 days (and can be run manually from **Actions**).
 
 Set these repository settings in GitHub:
 
 - **Variables** → `WAKE_UP_URL` (your deployed endpoint, for example `https://your-app.vercel.app/api/health`)
+- **Variables** (optional) → `WAKE_UP_ANCHOR_DATE` (`YYYY-MM-DD`; defaults to `2026-01-01` and controls the 6-day cycle anchor)
 - **Secrets** (optional) → `WAKE_UP_KEY` (only if your endpoint expects an `x-wake-key` header)

@@ -2,7 +2,7 @@ name: wake-up-supabase
 
 on:
   schedule:
-    - cron: "0 12 */6 * *"
+    - cron: "0 12 * * *"
   workflow_dispatch:
 
 jobs:
@@ -12,9 +12,28 @@ jobs:
       contents: read
     env:
       WAKE_UP_URL: ${{ vars.WAKE_UP_URL }}
+      WAKE_UP_ANCHOR_DATE: ${{ vars.WAKE_UP_ANCHOR_DATE || '2026-01-01' }}
       WAKE_UP_KEY: ${{ secrets.WAKE_UP_KEY }}
     steps:
+      - name: Check 6-day interval
+        id: interval
+        run: |
+          anchor_days=$(( $(date -u -d "$WAKE_UP_ANCHOR_DATE" +%s) / 86400 ))
+          today_days=$(( $(date -u +%s) / 86400 ))
+          elapsed_days=$((today_days - anchor_days))
+
+          if [ "$elapsed_days" -ge 0 ] && [ $((elapsed_days % 6)) -eq 0 ]; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip outside interval
+        if: steps.interval.outputs.should_run != 'true' && github.event_name != 'workflow_dispatch'
+        run: echo "Skipping wake-up run today; next automatic run occurs on the next 6-day boundary."
+
       - name: Validate wake-up URL
+        if: steps.interval.outputs.should_run == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           if [ -z "$WAKE_UP_URL" ]; then
             echo "Missing repository variable WAKE_UP_URL"
@@ -22,6 +41,7 @@ jobs:
           fi
 
       - name: Wake Supabase
+        if: steps.interval.outputs.should_run == 'true' || github.event_name == 'workflow_dispatch'
         run: |
           if [ -n "$WAKE_UP_KEY" ]; then
             curl --fail --silent --show-error \
