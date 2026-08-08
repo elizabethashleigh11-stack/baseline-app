@@ -66,6 +66,18 @@ Mobile-first baseline app scaffold using **Next.js App Router + Supabase** in a 
 2. Add `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` in Vercel project env vars.
 3. Deploy.
 
+## Temporary password protection
+
+To temporarily restrict access to your deployed URL (for example, `LivingDailyLady.space`), set these environment variables in your deployment:
+
+```env
+SITE_PASSWORD_PROTECTION_ENABLED=true
+SITE_ACCESS_USERNAME=your-username
+SITE_ACCESS_PASSWORD=your-strong-password
+```
+
+With this enabled, visitors must enter HTTP Basic Auth credentials before accessing the app.
+
 ## Scheduled Supabase wake-up
 
 This repo includes `.github/workflows/wake-up-supabase.yml`, which checks at 10:00/11:00 UTC and sends the wake-up ping at 6:00 AM America/New_York every 6 days (and can be run manually from **Actions**).
