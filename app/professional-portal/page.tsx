@@ -52,6 +52,10 @@ export default async function ProfessionalPortalPage() {
     redirect("/login");
   }
 
+  if (!role) {
+    redirect("/login");
+  }
+
   if (role === "parent") {
     redirect("/parent-portal");
   }
@@ -89,26 +93,36 @@ export default async function ProfessionalPortalPage() {
           </p>
         </header>
 
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {caseloadMetrics.map((metric) => (
-            <article
-              key={metric.label}
-              className="bg-crisp-white rounded-2xl border border-slate-gray/25 p-5 shadow-sm"
-            >
-              <p className="text-slate-gray text-sm">{metric.label}</p>
-              <p className="text-navy-blue mt-2 text-3xl font-semibold">
-                {metric.value}
-              </p>
-            </article>
-          ))}
+        <section className="space-y-3">
+          <p className="text-slate-gray text-sm">
+            Demo caseload metrics are shown below until live professional
+            reporting is connected.
+          </p>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {caseloadMetrics.map((metric) => (
+              <article
+                key={metric.label}
+                className="bg-crisp-white rounded-2xl border border-slate-gray/25 p-5 shadow-sm"
+              >
+                <p className="text-slate-gray text-sm">{metric.label}</p>
+                <p className="text-navy-blue mt-2 text-3xl font-semibold">
+                  {metric.value}
+                </p>
+              </article>
+            ))}
+          </div>
         </section>
 
         <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1.1fr_0.9fr]">
           <section className="space-y-5">
             <section className="bg-crisp-white rounded-2xl border border-slate-gray/25 p-5 shadow-sm sm:p-6">
               <h2 className="text-navy-blue text-lg font-semibold">
-                Today's schedule
+                Demo schedule snapshot
               </h2>
+              <p className="text-slate-gray mt-1 text-sm">
+                Placeholder caseload data is shown here until live professional
+                scheduling data is connected.
+              </p>
               <ul className="mt-4 space-y-3">
                 {todaySchedule.map((item) => (
                   <li
@@ -147,8 +161,12 @@ export default async function ProfessionalPortalPage() {
 
           <section className="bg-crisp-white rounded-2xl border border-slate-gray/25 p-5 shadow-sm sm:p-6">
             <h2 className="text-navy-blue text-lg font-semibold">
-              Follow-up queue
+              Demo follow-up queue
             </h2>
+            <p className="text-slate-gray mt-1 text-sm">
+              These items are sample content to shape the professional dashboard
+              layout.
+            </p>
             <ul className="mt-4 space-y-3">
               {followUps.map((item) => (
                 <li

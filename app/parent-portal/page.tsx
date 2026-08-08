@@ -43,12 +43,14 @@ const recentActivity = [
   },
 ];
 
-const navItems = ["Dashboard", "Calendar", "Messages", "Settings"];
-
 export default async function ParentPortalPage() {
   const { user, role } = await getPortalSession();
 
   if (!user) {
+    redirect("/login");
+  }
+
+  if (!role) {
     redirect("/login");
   }
 
@@ -132,30 +134,6 @@ export default async function ParentPortalPage() {
           </section>
         </div>
       </div>
-
-      <nav className="bg-crisp-white fixed inset-x-0 bottom-0 border-t border-slate-gray/25 shadow-[0_-6px_20px_rgba(27,54,93,0.08)] sm:hidden">
-        <ul className="mx-auto grid max-w-md grid-cols-4">
-          {navItems.map((item) => {
-            const isActive = item === "Dashboard";
-            return (
-              <li key={item}>
-                <button
-                  type="button"
-                  className={`flex w-full flex-col items-center gap-1 py-3 text-xs font-medium ${
-                    isActive ? "text-navy-blue" : "text-slate-gray"
-                  }`}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  <span className="text-sm" aria-hidden>
-                    ●
-                  </span>
-                  {item}
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
     </main>
   );
 }
